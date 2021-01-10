@@ -1,7 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const config = require("config");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -42,10 +41,9 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign({_id: this._id, isAdmin: this.isAdmin}, config.get("jwtPrivateKey"));
+  const token = jwt.sign({_id: this._id, isAdmin: this.isAdmin}, "Lemury7234!");
   return token;
 };
-
 const User = mongoose.model("User", userSchema);
 
 function validateUser(user) {
@@ -57,41 +55,6 @@ function validateUser(user) {
     phone: Joi.string().required().min(9).max(9),
   };
   return Joi.validate(user, schema);
-}
-
-async function createUser() {
-  const newUser = new User({
-    name: "John",
-    surname: "Smith",
-    password: "fdf4f4ffsfsad",
-    email: "4245@domain.com",
-    progress: [
-      {title: "Tenses", currentLevel: 0},
-      {title: "Articles", currentLevel: 0},
-      {title: "Questions", currentLevel: 0},
-      {title: "Adj ING vs ED", currentLevel: 0},
-      {title: "Adj GET vs BE", currentLevel: 0},
-      {title: "Passive voice", currentLevel: 0},
-      {title: "Infinitive", currentLevel: 0},
-      {title: "Modal verbs", currentLevel: 0},
-      {title: "Modal verbs (PAST)", currentLevel: 0},
-      {title: "Prefer / Rather", currentLevel: 0},
-      {title: "Used to", currentLevel: 0},
-      {title: "Reported Speech", currentLevel: 0},
-      {title: "Contrast Clauses", currentLevel: 0},
-      {title: "Time Clauses", currentLevel: 0},
-      {title: "Purpose Clauses", currentLevel: 0},
-      {title: "Reason Clauses", currentLevel: 0},
-      {title: "Defining / Non-def", currentLevel: 0},
-      {title: "Impersonal Passive", currentLevel: 0},
-      {title: "Participles", currentLevel: 0},
-      {title: "Inversion", currentLevel: 0},
-    ],
-    reservedLessons: [],
-  });
-
-  const result = await newUser.save();
-  console.log(result);
 }
 
 module.exports.User = User;

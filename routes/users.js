@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 const validateID = require("../middleware/validateID");
 const admin = require("../middleware/admin");
 
-const transporter = require("../utils/mailService");
+const transporter = require("../mailServices/mailService");
 const {Lesson} = require("../models/lesson");
 
 router.get("/", async (req, res) => {
@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
   res.send(users);
 });
 
-router.get("/:id", [validateID, auth], async (req, res) => {
+router.get("/:id", [validateID], async (req, res) => {
   const user = await User.findById(req.params.id).select("-password").populate("reservedLessons");
   if (!user) res.status(404).send("A user with the given Id was not found.");
   res.send(user);
@@ -28,7 +28,7 @@ router.post("/", async (req, res) => {
 
   let userEmail = await User.findOne({email: req.body.email});
   let userPhone = await User.findOne({phone: req.body.phone});
-  if (userEmail || userPhone) return res.status(400).send("User already registered.");
+  if (userEmail || userPhone) return res.status(400).send("Taki użytkownik już istnieje.");
 
   user = new User({
     name: req.body.name,
@@ -67,7 +67,28 @@ router.post("/", async (req, res) => {
   user = await user.save();
 
   const token = user.generateAuthToken();
-  res.header("x-auth-token", token).send(_.pick(user, ["_id", "name", "surname", "email"]));
+  res
+    .header("x-auth-token", token)
+    .header("access-control-expose-headers", "x-auth-token")
+    .send(_.pick(user, ["_id", "name", "surname", "email"]));
+
+  const mailOptions = {
+    from: "eng.empowering@gmail.com",
+    to: user.email,
+    subject: "Pomyślne założenie konta",
+    text: `Cześć ${user.name} !
+      Udało Ci się pomyślnie założyć konto. Przed zarezerowaniem lekcji zapoznaj się proszę
+      z regulaminem dostępnym na stronie (link na dole strony). W razie jakichkolwiek pytań
+      zapraszam do kontaktu :)`,
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(info.response);
+    }
+  });
 });
 
 router.put("/:id", [validateID, auth], async (req, res) => {

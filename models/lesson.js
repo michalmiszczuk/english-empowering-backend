@@ -16,7 +16,19 @@ function validateLesson(lesson) {
   return Joi.validate(lesson, schema);
 }
 
+function validateLessonUpdate(lesson) {
+  const schema = {
+    date: Joi.date(),
+    isDisabled: Joi.boolean(),
+    isReserved: Joi.boolean(),
+    __v: Joi.number(),
+    _id: Joi.any(),
+  };
+  return Joi.validate(lesson, schema);
+}
+
 const Lesson = mongoose.model("lesson", lessonSchema);
 
 module.exports.Lesson = Lesson;
 module.exports.validate = validateLesson;
+module.exports.validateUpdate = validateLessonUpdate;

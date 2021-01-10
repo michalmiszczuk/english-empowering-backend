@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {Lesson, validate} = require("../models/lesson");
+const {Lesson, validate, validateUpdate} = require("../models/lesson");
 const auth = require("../middleware/auth");
 const admin = require("../middleware/admin");
 const validateID = require("../middleware/validateID");
@@ -27,7 +27,7 @@ router.post("/", [auth, validator(validate)], async (req, res) => {
     let lessonDate = new Date(lesson.date);
     let lessonDateString = lessonDate.toString();
     if (lessonDateString === lessonComparedString)
-      return res.status(400).send("A lesson with the given date already exists");
+      return res.status(400).send("Lekcja o danej godzinie już istnieje.");
   }
 
   let newLesson = new Lesson({
@@ -39,7 +39,7 @@ router.post("/", [auth, validator(validate)], async (req, res) => {
   res.send(newLesson);
 });
 
-router.put("/:id", [validateID, auth], async (req, res) => {
+router.put("/:id", [validateID, auth, validator(validateUpdate)], async (req, res) => {
   const lesson = await Lesson.findByIdAndUpdate(
     req.params.id,
     {
@@ -55,7 +55,7 @@ router.put("/:id", [validateID, auth], async (req, res) => {
   res.send(lesson);
 });
 
-router.delete("/:id", [validateID, admin], async (req, res) => {
+router.delete("/:id", [validateID, auth, admin], async (req, res) => {
   const lesson = await Lesson.findByIdAndRemove(req.params.id);
   if (!lesson) res.status(404).send("A lesson with the given ID was not found");
   res.send(lesson);

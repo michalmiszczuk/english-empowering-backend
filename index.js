@@ -14,8 +14,9 @@ app.use(error);
 
 require("./startup/logging");
 require("./startup/db")();
+require("./startup/checks")();
 require("./startup/routes")(app);
-require("./startup/config");
+require("./startup/prod")(app);
 
-const port = 9000;
+const port = process.env.PORT || 9000;
 app.listen(port, () => winston.info(`Server started on port ${port}`));
