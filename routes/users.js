@@ -10,13 +10,13 @@ const admin = require("../middleware/admin");
 const transporter = require("../mailServices/mailService");
 const {Lesson} = require("../models/lesson");
 
-router.get("/", async (req, res) => {
+router.get("/", [auth, admin], async (req, res) => {
   const users = await User.find().populate("reservedLessons");
   if (!users) res.status(404).send("There are no lessons in the database.");
   res.send(users);
 });
 
-router.get("/:id", [validateID], async (req, res) => {
+router.get("/:id", [validateID, auth], async (req, res) => {
   const user = await User.findById(req.params.id).select("-password").populate("reservedLessons");
   if (!user) res.status(404).send("A user with the given Id was not found.");
   res.send(user);
@@ -91,7 +91,7 @@ router.post("/", async (req, res) => {
   });
 });
 
-router.put("/:id", [validateID, auth], async (req, res) => {
+router.put("/:id", [validateID, auth, admin], async (req, res) => {
   const prevUser = await User.findById(req.params.id);
 
   let user = await User.findByIdAndUpdate(

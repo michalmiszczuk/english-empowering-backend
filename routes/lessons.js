@@ -12,13 +12,13 @@ router.get("/", async (req, res) => {
   res.send(lessons);
 });
 
-router.get("/:id", [validateID, auth], async (req, res) => {
+router.get("/:id", async (req, res) => {
   const lesson = await Lesson.findById(req.params.id);
   if (!lesson) res.status(404).send("A lesson with the given ID was not found");
   res.send(lesson);
 });
 
-router.post("/", [auth, validator(validate)], async (req, res) => {
+router.post("/", [validator(validate), auth, admin], async (req, res) => {
   const lessons = await Lesson.find();
   let lessonCompared = new Date(req.body.date);
   let lessonComparedString = lessonCompared.toString();
@@ -39,7 +39,7 @@ router.post("/", [auth, validator(validate)], async (req, res) => {
   res.send(newLesson);
 });
 
-router.put("/:id", [validateID, auth, validator(validateUpdate)], async (req, res) => {
+router.put("/:id", [validateID, auth, admin, validator(validateUpdate)], async (req, res) => {
   const lesson = await Lesson.findByIdAndUpdate(
     req.params.id,
     {
