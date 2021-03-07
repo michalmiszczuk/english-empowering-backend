@@ -91,7 +91,7 @@ router.post("/", async (req, res) => {
   });
 });
 
-router.put("/:id", [validateID, auth, admin], async (req, res) => {
+router.put("/:id", [validateID, auth], async (req, res) => {
   const prevUser = await User.findById(req.params.id);
 
   let user = await User.findByIdAndUpdate(
@@ -111,7 +111,7 @@ router.put("/:id", [validateID, auth, admin], async (req, res) => {
   if (!user) res.status(404).send("User with the given ID was not found");
 
   user = await user.save();
-  res.send(_.pick(user, ["_id", "name", "surname", "email", "reservedLessons", "progress"]));
+  res.send("lalalaa");
 
   if (prevUser.reservedLessons.length >= user.reservedLessons.length) return;
 

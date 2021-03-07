@@ -39,7 +39,7 @@ router.post("/", [validator(validate), auth, admin], async (req, res) => {
   res.send(newLesson);
 });
 
-router.put("/:id", [validateID, auth, admin, validator(validateUpdate)], async (req, res) => {
+router.put("/:id", [validateID, auth, validator(validateUpdate)], async (req, res) => {
   const lesson = await Lesson.findByIdAndUpdate(
     req.params.id,
     {
